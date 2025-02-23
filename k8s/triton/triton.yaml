@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: triton
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: triton
+  template:
+    metadata:
+      labels:
+        app: triton
+    spec:
+      containers:
+      - name: triton
+        image: nvcr.io/nvidia/tritonserver:24.11-py3                
+        args: [
+          "tritonserver", 
+          "--model-repository=s3://minio:9000/models",
+          "--strict-model-config=false"
+        ]
+        ports:
+        - containerPort: 8000
+        - containerPort: 8001
+        - containerPort: 8002
+        # resources:
+        #   limits:
+        #     nvidia.com/gpu: 1
+        resources:
+          requests:
+            cpu: 1
+            memory: 2Gi
+          limits:
+            cpu: 2
+            memory: 4Gi
+        env:
+        - name: AWS_ACCESS_KEY_ID
+          value: "superadmin" # todo: move to secret
+        - name: AWS_SECRET_ACCESS_KEY
+          value: "superadmin" # todo: move to secret
+        - name: S3_USE_HTTPS
+          value: "0"
+        readinessProbe:
+          httpGet:
+            path: /v2/health/ready
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /v2/health/live
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: triton
+spec:
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8000
+  - name: grpc
+    port: 8001
+    targetPort: 8001
+  - name: metrics
+    port: 8002
+    targetPort: 8002
+  selector:
+    app: triton

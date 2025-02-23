@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clickhouse
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: clickhouse
+  template:
+    metadata:
+      labels:
+        app: clickhouse
+    spec:
+      containers:
+        - name: clickhouse
+          image: clickhouse:latest
+          ports:
+            - containerPort: 9000
+              name: tcp-port
+            - containerPort: 8123
+              name: http-port
+          env:
+            - name: CLICKHOUSE_USER
+              value: "clickhouseuser"
+            - name: CLICKHOUSE_PASSWORD
+              value: "clickhousepassword"
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: clickhouse
+spec:
+  selector:
+    app: clickhouse
+  ports:
+    - protocol: TCP
+      port: 9000
+      targetPort: 9000
+      name: tcp
+    - protocol: TCP
+      port: 8123
+      targetPort: 8123
+      name: http
+  type: ClusterIP

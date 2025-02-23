@@ -1,0 +1,9 @@
+torch
+click
+numpy
+transformers
+requests
+tritonclient[all]
+kagglehub
+pandas
+clickhouse_driver
