@@ -41,17 +41,15 @@ kind: Service
 metadata:
   name: minio
 spec:
-  type: NodePort
+  type: LoadBalancer
   ports:
   - port: 9000
     targetPort: 9000
     protocol: TCP
     name: api
-    nodePort: 30900
   - port: 9001
     targetPort: 9001
     protocol: TCP
     name: console
-    nodePort: 30901
   selector:
     app: minio

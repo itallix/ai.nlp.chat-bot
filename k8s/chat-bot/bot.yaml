@@ -14,8 +14,8 @@ spec:
     spec:
       containers:
       - name: chat-bot
-        image: chat-bot:latest
-        imagePullPolicy: IfNotPresent
+        image: itallix/chat-bot:3
+        imagePullPolicy: Always
         ports:
         - containerPort: 5001
         env:

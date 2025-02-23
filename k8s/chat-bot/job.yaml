@@ -1,0 +1,14 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: write-embeddings-job
+spec:
+  template:
+    spec:
+      containers:
+      - name: write-embeddings
+        image: curlimages/curl:latest
+        command: ["curl"]
+        args: ["http://chat-bot-service:5001/embeddings"]
+      restartPolicy: Never
+  backoffLimit: 4

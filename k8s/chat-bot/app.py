@@ -1,6 +1,7 @@
 import logging
 import os
 import numpy as np
+import pandas as pd
 import tritonclient.grpc as grpcclient
 
 from clickhouse_driver import Client
@@ -63,6 +64,40 @@ def _infer(
     )
 
     return response.as_numpy("output")
+
+@app.route('/embeddings')
+def write_embeddings():
+    clickhouse_client.execute('''
+    CREATE TABLE IF NOT EXISTS embeddings (
+        id UInt64,
+        sentence String,
+        embedding Array(Float32)
+    ) ENGINE = MergeTree()
+    ORDER BY id
+    ''')
+    embeddings = np.load("/data/embeddings.npy")
+    sentences = pd.read_csv("/data/sentences.csv", skiprows=1, header=None)[0].tolist()
+    
+    batch_size = 1000
+    batch = []
+    
+    for i, (sentence, embedding) in enumerate(zip(sentences, embeddings)):
+        batch.append((i, sentence, embedding.tolist()))
+        if (i + 1) % batch_size == 0:
+            logger.info(f"Inserting batch ending at {i}th embedding row\n")
+            clickhouse_client.execute(
+                "INSERT INTO embeddings (id, sentence, embedding) VALUES",
+                batch
+            )
+            batch = []
+
+    if batch:
+        logger.info(f"Inserting final batch with {len(batch)} rows\n")
+        clickhouse_client.execute(
+            "INSERT INTO embeddings (id, sentence, embedding) VALUES",
+            batch
+        )
+    return "OK"
 
 @app.route('/', methods=['POST'])
 def get_closest():
