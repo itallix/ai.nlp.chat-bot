@@ -82,7 +82,7 @@ def write_embeddings():
     batch = []
     
     for i, (sentence, embedding) in enumerate(zip(sentences, embeddings)):
-        batch.append((i, sentence, embedding.tolist()))
+        batch.append((i, str(sentence), embedding.tolist()))
         if (i + 1) % batch_size == 0:
             logger.info(f"Inserting batch ending at {i}th embedding row\n")
             clickhouse_client.execute(

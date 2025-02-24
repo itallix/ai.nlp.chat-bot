@@ -116,7 +116,7 @@ This assignment demonstrates key concepts in modern NLP retrieval systems:
 - ClickHouse
 - Kubernetes
 - MinIO
-- Gardio
+- Gradio
 
 ## Licence
 
