@@ -2,9 +2,6 @@
 
 This project demonstrates a practical implementation of a retrieval task in Natural Language Processing (NLP) as part of the Generative NLP course. It creates a chat bot that responds with relevant quotes from the TV show House MD using a two-stage retrieval and reranking approach.
 
-## Live Demo
-Access the live demo at: http://34.30.156.210/
-
 ![Chat Bot](img/app.png)
 
 ## Architecture Overview
